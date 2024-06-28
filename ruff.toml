@@ -1,0 +1,24 @@
+# Same as Black.
+line-length = 88
+indent-width = 4
+
+# Assume Python 3.8
+target-version = "py38"
+
+[lint]
+# Enable Pyflakes (`F`) and a subset of the pycodestyle (`E`)  codes by default.
+# Unlike Flake8, Ruff doesn't enable pycodestyle warnings (`W`) or
+# McCabe complexity (`C901`) by default.
+#select = ["E4", "E7", "E9", "F", "W"]
+select = ["ALL"]
+ignore = ["C901", "EM101", "TRY003", "E501", "D", "G004", "N", "S105",
+    "DTZ007", "S301", "RUF013", "PTH123", "PLW0603", "TRY400", "BLE001",
+    "PLR0912", "PLR0915", "FBT001", "FBT002", "FA100",
+]
+
+[format]
+# Like Black, use double quotes for strings.
+quote-style = "double"
+
+# Like Black, indent with spaces, rather than tabs.
+indent-style = "tab"
