@@ -5,7 +5,6 @@ import pickle
 import signal
 import sys
 from threading import Event
-from time import sleep
 from typing import Union
 
 import pytz
@@ -46,6 +45,7 @@ TOKEN = {
 }
 
 # Catch docker sigterm during sleep()
+# sleep() is replaced with EXIT.wait() to trap docker sigterm
 EXIT = Event()
 
 #
@@ -242,8 +242,11 @@ def ondemand_status(s: requests.sessions.Session, ts: datetime.datetime) -> date
                 f"Error reading ODR response: {json_response}; Attempt {retries}/6",
             )
             retries += 1
-            sleep(ODR_SLEEP)
+            EXIT.wait(ODR_SLEEP)
             continue
+        except dtparser.ParserError:
+            _LOGGER.error(f"Unable to parse ODR date '{data['odrdate']}'. Requesting new ODR.")
+            status = None
         except Exception:
             raise
 
@@ -308,7 +311,7 @@ def ondemand_status(s: requests.sessions.Session, ts: datetime.datetime) -> date
 
         # PENDING or else
         retries += 1
-        sleep(ODR_SLEEP)
+        EXIT.wait(ODR_SLEEP)
 
     # Exited the loop
     raise SmartMeterTexasException("Failed after 6 attempts to get ODR status")
@@ -460,7 +463,7 @@ def do_historical(s: requests.sessions.Session, startstr: str, endstr: str) -> N
             _LOGGER.error(f"Did not fetch any data for {current}; continuing...")
 
         current = current + datetime.timedelta(days=1)
-        sleep(10)
+        EXIT.wait(10)
 
     _LOGGER.info("Finished historical import")
 
@@ -580,13 +583,13 @@ def main() -> None:
             sys.exit(0)
         except SmartMeterTexasAuthExpired:
             # Short sleep to go back through the loop and refresh the token
-            sleep(10)
+            EXIT.wait(10)
         except SmartMeterTexasAPIError as f:
             _LOGGER.error(f"API Error: {f}")
-            sleep(60)
+            EXIT.wait(60)
         except Exception as e:
             _LOGGER.error(f"Generic exception: {e}")
-            sleep(60)
+            EXIT.wait(60)
 
     _LOGGER.info("-- Shutting down...")
 

@@ -16,3 +16,4 @@ NEXTVERSION=$(cat VERSION | awk -F. -v OFS=. '{$NF += 1 ; print}')
 echo $NEXTVERSION >VERSION
 
 docker build -t utdrmac/elecmeter:${NEXTVERSION} .
+docker image tag utdrmac/elecmeter:${NEXTVERSION} utdrmac/elecmeter:latest

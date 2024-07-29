@@ -5,7 +5,8 @@
 version: '3'
 services:
   elecmeter:
-    image: utdrmac/elecmeter:1.0.17
+    image: utdrmac/elecmeter:latest
     container_name: elecmeter
     hostname: elecmeter.local
     restart: unless-stopped
+    network_mode: bridge
